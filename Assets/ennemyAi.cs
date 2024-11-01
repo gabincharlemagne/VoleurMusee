@@ -4,18 +4,24 @@ using UnityEngine.AI;
 public class EnemyAI : MonoBehaviour
 {
     public Transform[] waypoints; // Liste des points de passage
-    public float waypointTolerance = 1f; // Distance tolérée pour atteindre le waypoint
-    public float detectionRange = 10f; // Distance de détection du joueur
-    public float fieldOfViewAngle = 45f; // Angle du champ de vision de l'ennemi
-    public Transform player; // Référence au joueur
+    public float waypointTolerance; // Distance tolÃ©rÃ©e pour atteindre le waypoint
+    public float detectionRange; // Distance de dÃ©tection du joueur
+    public float fieldOfViewAngle; // Angle du champ de vision de l'ennemi
+    public Transform player; // RÃ©fÃ©rence au joueur
+
+    public float walkSpeed; // Vitesse de marche
+    public float runSpeed; // Vitesse de course
 
     private NavMeshAgent navMeshAgent;
+    private Animator animator;
     private int currentWaypointIndex = 0;
     private bool isChasingPlayer = false;
 
     void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
+        animator = GetComponentInChildren<Animator>(); // Assurez-vous que l'Animator est sur l'enfant si nÃ©cessaire
+        navMeshAgent.speed = walkSpeed; // Initialiser avec la vitesse de marche
         MoveToNextWaypoint();
     }
 
@@ -23,39 +29,51 @@ public class EnemyAI : MonoBehaviour
     {
         if (isChasingPlayer)
         {
-            // Poursuivre le joueur
+            // Poursuite du joueur
+            navMeshAgent.speed = runSpeed;
             navMeshAgent.SetDestination(player.position);
 
-            // Vérifier si le joueur est toujours visible
+            animator.SetBool("isRunning", true);
+            animator.SetBool("isWalking", false);
+
             if (!CanSeePlayer())
             {
                 isChasingPlayer = false;
-                MoveToNextWaypoint(); // Revenir à la patrouille si le joueur n'est plus visible
+                MoveToNextWaypoint();
+                Debug.Log("Joueur perdu, retour Ã  la patrouille");
             }
         }
         else
         {
-            // Continuer la patrouille si le joueur n'est pas détecté
+            // Patrouille entre les waypoints
+            navMeshAgent.speed = walkSpeed;
+            animator.SetBool("isWalking", true);
+            animator.SetBool("isRunning", false);
+
             if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance < waypointTolerance)
             {
+                Debug.Log("Waypoint atteint, passage au suivant");
                 MoveToNextWaypoint();
             }
 
-            // Vérifier si le joueur est dans le champ de vision
             if (CanSeePlayer())
             {
                 isChasingPlayer = true;
+                Debug.Log("Joueur dÃ©tectÃ©, dÃ©but de poursuite");
             }
         }
     }
+
 
     void MoveToNextWaypoint()
     {
         if (waypoints.Length == 0) return;
 
         navMeshAgent.SetDestination(waypoints[currentWaypointIndex].position);
-        currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length; // Passer au prochain waypoint
+        Debug.Log("Nouvelle destination : Waypoint " + currentWaypointIndex);
+        currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
     }
+
 
     bool CanSeePlayer()
     {
