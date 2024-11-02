@@ -4,16 +4,16 @@ using TMPro;
 
 public class ItemTracker : MonoBehaviour
 {
-    public List<string> itemsToFind = new List<string>(); // Liste des objets à trouver
-    public TextMeshProUGUI itemListText; // Référence au TextMeshPro pour l'affichage
+    public List<string> itemsToFind = new List<string>(); // Liste des objets ï¿½ trouver
+    public TextMeshProUGUI itemListText; // Rï¿½fï¿½rence au TextMeshPro pour l'affichage
 
     void Start()
     {
-        // Remplissez la liste d'objets à trouver ici
+        // Remplissez la liste d'objets ï¿½ trouver ici
         itemsToFind.Add("Cube");
 
 
-        // Mettez à jour l'UI au démarrage
+        // Mettez ï¿½ jour l'UI au dï¿½marrage
         UpdateItemListUI();
     }
 
@@ -21,17 +21,17 @@ public class ItemTracker : MonoBehaviour
     {
         if (itemsToFind.Contains(itemName))
         {
-            itemsToFind.Remove(itemName); // Supprime l'objet trouvé de la liste
-            UpdateItemListUI(); // Met à jour l'UI après avoir trouvé un objet
+            itemsToFind.Remove(itemName); // Supprime l'objet trouvï¿½ de la liste
+            UpdateItemListUI(); // Met ï¿½ jour l'UI aprï¿½s avoir trouvï¿½ un objet
         }
     }
 
     void UpdateItemListUI()
     {
-        itemListText.text = "Objets à trouver:\n"; // Réinitialise le texte
+        itemListText.text = "Find a : \n"; // Rï¿½initialise le texte
         foreach (string item in itemsToFind)
         {
-            itemListText.text += "- " + item + "\n"; // Ajoute chaque objet à la liste affichée
+            itemListText.text += "- " + item + "\n"; // Ajoute chaque objet ï¿½ la liste affichï¿½e
         }
     }
 }

@@ -7,6 +7,7 @@ public class PlayerDeath : MonoBehaviour
     public float deathDistance = 1f; // Distance à laquelle le joueur meurt
     public GameObject gameOverPanel; // Référence au panneau Game Over
     public MonoBehaviour cameraController; // Référence au script de la caméra
+    private bool isDead = false;
 
     void Start()
     {
@@ -21,13 +22,18 @@ public class PlayerDeath : MonoBehaviour
             cameraController.enabled = true; // Activer le contrôle de la caméra au début
         }
 
-        // Assure-toi que le curseur est déverrouillé au départ
+        // Verrouiller et masquer le curseur au départ
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        // S'abonner à l'événement de chargement de la scène
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     void Update()
     {
+        if (isDead) return;
+
         // Calculer la distance entre le joueur et l'ennemi
         float distance = Vector3.Distance(transform.position, enemy.position);
 
@@ -37,16 +43,18 @@ public class PlayerDeath : MonoBehaviour
             Die();
         }
 
-        // Supprime la vérification pour la touche "Entrée" si on ne veut plus de raccourci clavier
-        //if (gameOverPanel.activeSelf && Input.GetKeyDown(KeyCode.Return))
-        //{
-        //    Respawn();
-        //}
+        // Vérifier si le joueur appuie sur "Entrée" pour respawn après être mort
+        if (gameOverPanel.activeSelf && Input.GetKeyDown(KeyCode.Return))
+        {
+            Respawn();
+        }
     }
 
     // Méthode pour gérer la mort du joueur
     void Die()
     {
+        isDead = true;
+
         // Afficher l'écran Game Over
         if (gameOverPanel != null)
         {
@@ -59,30 +67,49 @@ public class PlayerDeath : MonoBehaviour
             cameraController.enabled = false;
         }
 
-        // Déverrouiller et afficher le curseur pour cliquer sur le bouton
+        // Déverrouiller et afficher le curseur pour permettre l'interaction avec le panneau Game Over
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        Time.timeScale = 0; // Met le jeu en pause
+        // Mettre le jeu en pause
+        Time.timeScale = 0;
     }
 
     // Méthode pour respawn le joueur
     public void Respawn()
     {
-        // Reprendre le jeu en remettant le TimeScale à 1
+        // Reprendre le jeu en remettant Time.timeScale à 1
         Time.timeScale = 1;
+
+        // Déverrouiller le curseur pour permettre l'utilisation de la souris après le respawn
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
 
         // Recharger la scène actuelle pour redémarrer le jeu
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 
-        // Réactiver le mouvement de la caméra
+    // Méthode appelée après le chargement de la scène
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Réinitialiser les paramètres de mort et réactiver le mouvement
+        isDead = false;
+
         if (cameraController != null)
         {
             cameraController.enabled = true;
         }
 
-        // Verrouiller et masquer le curseur après le respawn
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        // Se désabonner de l'événement pour éviter de multiples appels
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnDestroy()
+    {
+        // Assurez-vous de se désabonner de l'événement pour éviter les erreurs de référence
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }
