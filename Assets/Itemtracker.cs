@@ -4,19 +4,32 @@ using TMPro;
 
 public class ItemTracker : MonoBehaviour
 {
-    public List<string> itemsToFind = new List<string>(); // Liste des objets à trouver
-    public TextMeshProUGUI itemListText; // Référence au TextMeshPro pour l'affichage
-    public GameObject victoryPanel; // Référence au panneau de victoire
+    public List<string> itemsToFind = new List<string>();
+    public TextMeshProUGUI itemListText;
 
-    void Start()
+    private GameController gameController;
+
+    private void Start()
     {
-        // Remplissez la liste d'objets à trouver ici
         itemsToFind.Add("Cube");
+<<<<<<< HEAD
+<<<<<<< HEAD
+        gameController = FindObjectOfType<GameController>();
+=======
+        itemsToFind.Add("Lion");
+        itemsToFind.Add("Greek status");
+        itemsToFind.Add("Einstein");
+=======
+        itemsToFind.Add("Lion");
+        itemsToFind.Add("Greek status");
+        itemsToFind.Add("Einstein");
 
-        // Cache le panneau de victoire au démarrage
-        victoryPanel.SetActive(false);
 
-        // Met à jour l'UI au démarrage
+>>>>>>> c5888254ac75f3f1da262d13c802d745f71ae5c8
+
+
+>>>>>>> c5888254ac75f3f1da262d13c802d745f71ae5c8
+
         UpdateItemListUI();
     }
 
@@ -24,29 +37,22 @@ public class ItemTracker : MonoBehaviour
     {
         if (itemsToFind.Contains(itemName))
         {
-            itemsToFind.Remove(itemName); // Supprime l'objet trouvé de la liste
-            UpdateItemListUI(); // Met à jour l'UI après avoir trouvé un objet
+            itemsToFind.Remove(itemName);
+            UpdateItemListUI();
 
-            // Vérifie si tous les objets ont été trouvés
             if (itemsToFind.Count == 0)
             {
-                DisplayVictoryScreen();
+                gameController.ShowVictoryScreen(); // Appelle la fonction de GameController
             }
         }
     }
 
-    void UpdateItemListUI()
+    private void UpdateItemListUI()
     {
-        itemListText.text = "Find a : \n"; // Réinitialise le texte
+        itemListText.text = "Find a : \n";
         foreach (string item in itemsToFind)
         {
-            itemListText.text += "- " + item + "\n"; // Ajoute chaque objet à la liste affichée
+            itemListText.text += "- " + item + "\n";
         }
-    }
-
-    void DisplayVictoryScreen()
-    {
-        victoryPanel.SetActive(true); // Affiche le panneau de victoire
-        Time.timeScale = 0; // Arrête le jeu si souhaité
     }
 }

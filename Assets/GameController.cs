@@ -1,32 +1,116 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
 
-public class PauseMenu : MonoBehaviour
+public class GameController : MonoBehaviour
 {
-    public GameObject pauseMenuPanel; // Le panel de l'UI pour le menu de pause
+    [Header("UI Panels")]
+    public GameObject pauseMenuPanel;
+    public GameObject victoryPanel;
+    public GameObject gameOverPanel;
+
+    [Header("Camera Controller")]
     public MonoBehaviour cameraController; // Référence au script de contrôle de la caméra
-    public GameObject[] uiElementsToHide; // Tableau pour les éléments d'UI à cacher
+
+    [Header("Game Elements")]
+    public GameObject[] uiElementsToHide; // Éléments d'UI à masquer pendant la pause
+
+    [Header("Timer Settings")]
+    public float totalTime = 600f;
+    public TMP_Text timerText;
+
     private bool isPaused = false;
+    private bool gameEnded = false;
+    private float remainingTime;
+
+    private void Start()
+    {
+        remainingTime = totalTime;
+        gameOverPanel.SetActive(false);
+        victoryPanel.SetActive(false);
+        pauseMenuPanel.SetActive(false);
+    }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+        if (!gameEnded)
         {
-            if (isPaused)
+            UpdateTimer();
+
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
             {
-                ResumeGame();
+                if (isPaused)
+                {
+                    ResumeGame();
+                }
+                else
+                {
+                    PauseGame();
+                }
             }
-            else
-            {
-                PauseGame();
-            }
+        }
+    }
+
+    private void UpdateTimer()
+    {
+        remainingTime -= Time.deltaTime;
+        if (remainingTime <= 0)
+        {
+            EndGame();
+        }
+        else
+        {
+            UpdateTimerText();
+        }
+    }
+
+    private void UpdateTimerText()
+    {
+        int minutes = Mathf.FloorToInt(remainingTime / 60);
+        int seconds = Mathf.FloorToInt(remainingTime % 60);
+        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
+
+    private void EndGame()
+    {
+        gameEnded = true;
+        gameOverPanel.SetActive(true);
+        Time.timeScale = 0f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        if (cameraController != null)
+        {
+            cameraController.enabled = false; // Désactive le mouvement de la caméra
+        }
+    }
+
+    public void ShowVictoryScreen()
+    {
+        gameEnded = true;
+        victoryPanel.SetActive(true);
+        Time.timeScale = 0f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        if (cameraController != null)
+        {
+            cameraController.enabled = false; // Désactive le mouvement de la caméra
+        }
+        
+        foreach (GameObject uiElement in uiElementsToHide)
+        {
+            uiElement.SetActive(false);
         }
     }
 
     public void PauseGame()
     {
-        pauseMenuPanel.SetActive(true); // Affiche le menu de pause
-        Time.timeScale = 0f; // Met le jeu en pause
+        if (gameEnded) return; // Empêche la pause si le jeu est terminé
+
+        pauseMenuPanel.SetActive(true);
+        Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         isPaused = true;
@@ -36,7 +120,6 @@ public class PauseMenu : MonoBehaviour
             cameraController.enabled = false; // Désactive le script de contrôle de la caméra
         }
 
-        // Désactive tous les éléments du tableau
         foreach (GameObject uiElement in uiElementsToHide)
         {
             uiElement.SetActive(false);
@@ -45,8 +128,10 @@ public class PauseMenu : MonoBehaviour
 
     public void ResumeGame()
     {
-        pauseMenuPanel.SetActive(false); // Cache le menu de pause
-        Time.timeScale = 1f; // Reprend le jeu
+        if (gameEnded) return; // Empêche la reprise du jeu si celui-ci est terminé
+
+        pauseMenuPanel.SetActive(false);
+        Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         isPaused = false;
@@ -56,16 +141,21 @@ public class PauseMenu : MonoBehaviour
             cameraController.enabled = true; // Réactive le script de contrôle de la caméra
         }
 
-        // Réactive tous les éléments du tableau
         foreach (GameObject uiElement in uiElementsToHide)
         {
             uiElement.SetActive(true);
         }
     }
 
+    public void RestartGame()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
     public void QuitToMainMenu()
     {
-        Time.timeScale = 1f; // Remet le jeu à la vitesse normale avant de changer de scène
-        SceneManager.LoadScene("MainMenu"); // Assure-toi que le nom de la scène du menu principal est correct
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
     }
 }
