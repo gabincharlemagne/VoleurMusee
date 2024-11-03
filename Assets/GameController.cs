@@ -1,41 +1,71 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class GameController : MonoBehaviour
+public class PauseMenu : MonoBehaviour
 {
-    public GameObject mainMenuPanel; // Panel du menu principal
-    public GameObject gameUIPanel;   // Panel de l'UI du jeu (radar et liste d'objets)
+    public GameObject pauseMenuPanel; // Le panel de l'UI pour le menu de pause
+    public MonoBehaviour cameraController; // Référence au script de contrôle de la caméra
+    public GameObject[] uiElementsToHide; // Tableau pour les éléments d'UI à cacher
+    private bool isPaused = false;
 
-    private void Start()
+    private void Update()
     {
-        ShowMainMenu(); // Affiche le menu principal au démarrage
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+        {
+            if (isPaused)
+            {
+                ResumeGame();
+            }
+            else
+            {
+                PauseGame();
+            }
+        }
     }
 
-    public void StartGame()
+    public void PauseGame()
     {
-        mainMenuPanel.SetActive(false); // Cache le menu principal
-        gameUIPanel.SetActive(true);    // Affiche l'interface de jeu (radar et liste d'objets)
-        
-        // Verrouille le curseur et le rend invisible pour le gameplay
-        // Verrouille le curseur et le rend invisible si nécessaire pour le gameplay
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-        // Démarre ici d'autres éléments du gameplay si nécessaire
-    }
-
-    public void ShowMainMenu()
-    {
-        mainMenuPanel.SetActive(true); // Affiche le menu principal
-        gameUIPanel.SetActive(false);  // Cache l'interface de jeu
-        
-        // Libère le curseur et le rend visible dans le menu principal
+        pauseMenuPanel.SetActive(true); // Affiche le menu de pause
+        Time.timeScale = 0f; // Met le jeu en pause
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        isPaused = true;
+
+        if (cameraController != null)
+        {
+            cameraController.enabled = false; // Désactive le script de contrôle de la caméra
+        }
+
+        // Désactive tous les éléments du tableau
+        foreach (GameObject uiElement in uiElementsToHide)
+        {
+            uiElement.SetActive(false);
+        }
     }
 
-    public void QuitGame()
+    public void ResumeGame()
     {
-        // Quitte le jeu (ne fonctionne que dans la version buildée)
-        Application.Quit();
+        pauseMenuPanel.SetActive(false); // Cache le menu de pause
+        Time.timeScale = 1f; // Reprend le jeu
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        isPaused = false;
+
+        if (cameraController != null)
+        {
+            cameraController.enabled = true; // Réactive le script de contrôle de la caméra
+        }
+
+        // Réactive tous les éléments du tableau
+        foreach (GameObject uiElement in uiElementsToHide)
+        {
+            uiElement.SetActive(true);
+        }
+    }
+
+    public void QuitToMainMenu()
+    {
+        Time.timeScale = 1f; // Remet le jeu à la vitesse normale avant de changer de scène
+        SceneManager.LoadScene("MainMenu"); // Assure-toi que le nom de la scène du menu principal est correct
     }
 }
