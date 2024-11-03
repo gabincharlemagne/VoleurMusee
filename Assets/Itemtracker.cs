@@ -11,14 +11,25 @@ public class ItemTracker : MonoBehaviour
 
     private void Start()
     {
+        // Trouver le GameController dans la scène
+        gameController = FindObjectOfType<GameController>();
+
+        // Vérifie que le GameController a bien été trouvé
+        if (gameController == null)
+        {
+            Debug.LogError("GameController non trouvé dans la scène. Assurez-vous qu'il est présent dans la hiérarchie.");
+        }
+
+        // Ajouter les objets à trouver
         itemsToFind.Add("Cube");
         itemsToFind.Add("Lion");
         itemsToFind.Add("Greek status");
         itemsToFind.Add("Einstein");
 
-
+        // Met à jour l'UI au démarrage
         UpdateItemListUI();
     }
+
 
     public void FindItem(string itemName)
     {
