@@ -12,23 +12,10 @@ public class ItemTracker : MonoBehaviour
     private void Start()
     {
         itemsToFind.Add("Cube");
-<<<<<<< HEAD
-<<<<<<< HEAD
-        gameController = FindObjectOfType<GameController>();
-=======
-        itemsToFind.Add("Lion");
-        itemsToFind.Add("Greek status");
-        itemsToFind.Add("Einstein");
-=======
         itemsToFind.Add("Lion");
         itemsToFind.Add("Greek status");
         itemsToFind.Add("Einstein");
 
-
->>>>>>> c5888254ac75f3f1da262d13c802d745f71ae5c8
-
-
->>>>>>> c5888254ac75f3f1da262d13c802d745f71ae5c8
 
         UpdateItemListUI();
     }
