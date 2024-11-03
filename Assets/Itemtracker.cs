@@ -12,6 +12,11 @@ public class ItemTracker : MonoBehaviour
     {
         // Remplissez la liste d'objets à trouver ici
         itemsToFind.Add("Cube");
+        itemsToFind.Add("Lion");
+        itemsToFind.Add("Greek status");
+        itemsToFind.Add("Einstein");
+
+
 
         // Cache le panneau de victoire au démarrage
         victoryPanel.SetActive(false);
