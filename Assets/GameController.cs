@@ -23,6 +23,10 @@ public class GameController : MonoBehaviour
     private bool isPaused = false;
     private bool gameEnded = false;
     private float remainingTime;
+    
+    public BestTimesData bestTimesData; // Référence au ScriptableObject pour les meilleurs temps
+    public TMP_Text bestTimesText; // Référence à l'UI pour afficher les meilleurs temps
+
 
     private void Start()
     {
@@ -99,9 +103,24 @@ public class GameController : MonoBehaviour
             cameraController.enabled = false; // Désactive le mouvement de la caméra
         }
         
+        // Ajouter le temps actuel aux meilleurs temps
+        bestTimesData.AddTime(totalTime - remainingTime);
+        UpdateBestTimesUI(); // Affiche les meilleurs temps dans l'UI de victoire
+        
         foreach (GameObject uiElement in uiElementsToHide)
         {
             uiElement.SetActive(false);
+        }
+    }
+    
+    private void UpdateBestTimesUI()
+    {
+        bestTimesText.text = "Best Times:\n";
+        for (int i = 0; i < bestTimesData.bestTimes.Count; i++)
+        {
+            int minutes = Mathf.FloorToInt(bestTimesData.bestTimes[i] / 60);
+            int seconds = Mathf.FloorToInt(bestTimesData.bestTimes[i] % 60);
+            bestTimesText.text += string.Format("{0}: {1:00}:{2:00}\n", i + 1, minutes, seconds);
         }
     }
 
