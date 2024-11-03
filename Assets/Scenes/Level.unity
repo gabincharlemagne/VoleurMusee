@@ -5388,7 +5388,7 @@ Transform:
   m_GameObject: {fileID: 1191872731}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -21.8, y: 0, z: -1.83}
+  m_LocalPosition: {x: 10, y: 0, z: -18.58}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6860,7 +6860,7 @@ Transform:
   m_GameObject: {fileID: 1511434050}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -21.8, y: 0, z: -1.83}
+  m_LocalPosition: {x: -8.07, y: 0, z: -27.55}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7667,17 +7667,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e892c0abacfde6043a6d737ae8a1b928, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  progressionData: {fileID: 11400000, guid: fcfbe362a1e627c4999a3936f5565cd8, type: 2}
   waypoints:
   - {fileID: 1682439737}
   - {fileID: 1586882414}
   - {fileID: 1511434051}
   - {fileID: 1191872732}
   waypointTolerance: 1
-  detectionRange: 20
-  fieldOfViewAngle: 180
   player: {fileID: 215793300}
-  walkSpeed: 2
-  runSpeed: 4
 --- !u!136 &1765102053
 CapsuleCollider:
   m_ObjectHideFlags: 0
