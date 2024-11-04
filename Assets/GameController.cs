@@ -26,6 +26,9 @@ public class GameController : MonoBehaviour
     
     public BestTimesData bestTimesData; // Référence au ScriptableObject pour les meilleurs temps
     public TMP_Text bestTimesText; // Référence à l'UI pour afficher les meilleurs temps
+    
+    public TMP_Text currentTimeText; // Texte pour afficher le temps de la partie actuelle
+
 
 
     private void Start()
@@ -102,27 +105,46 @@ public class GameController : MonoBehaviour
         {
             cameraController.enabled = false; // Désactive le mouvement de la caméra
         }
-        
-        // Ajouter le temps actuel aux meilleurs temps
-        bestTimesData.AddTime(totalTime - remainingTime);
-        UpdateBestTimesUI(); // Affiche les meilleurs temps dans l'UI de victoire
-        
+
+        // Calculer le temps de la partie actuelle
+        float currentTime = totalTime - remainingTime;
+        DisplayCurrentTime(currentTime); // Affiche le temps de la partie actuelle
+        bestTimesData.AddTime(currentTime); // Ajoute le temps actuel aux meilleurs temps
+        UpdateBestTimeUI(); // Met à jour l'affichage du meilleur temps
+
+        // Désactive tous les éléments d'UI à cacher
         foreach (GameObject uiElement in uiElementsToHide)
         {
             uiElement.SetActive(false);
         }
     }
+
     
-    private void UpdateBestTimesUI()
+    private void DisplayCurrentTime(float currentTime)
     {
-        bestTimesText.text = "Best Times:\n";
-        for (int i = 0; i < bestTimesData.bestTimes.Count; i++)
+        int minutes = Mathf.FloorToInt(currentTime / 60);
+        int seconds = Mathf.FloorToInt(currentTime % 60);
+        currentTimeText.text = $"Your Time: {minutes:00}:{seconds:00}";
+    }
+
+
+    
+    private void UpdateBestTimeUI()
+    {
+        float bestTime = bestTimesData.GetBestTime();
+
+        if (bestTime != float.MaxValue) // Vérifie qu'il y a un temps enregistré
         {
-            int minutes = Mathf.FloorToInt(bestTimesData.bestTimes[i] / 60);
-            int seconds = Mathf.FloorToInt(bestTimesData.bestTimes[i] % 60);
-            bestTimesText.text += string.Format("{0}: {1:00}:{2:00}\n", i + 1, minutes, seconds);
+            int minutes = Mathf.FloorToInt(bestTime / 60);
+            int seconds = Mathf.FloorToInt(bestTime % 60);
+            bestTimesText.text = $"Best Time: {minutes:00}:{seconds:00}";
+        }
+        else
+        {
+            bestTimesText.text = "Best Time: --:--"; // Message par défaut si aucun temps n'est enregistré
         }
     }
+
 
     public void PauseGame()
     {

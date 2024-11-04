@@ -2,17 +2,16 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    // Référence au script ItemTracker
+    // Rï¿½fï¿½rence au script ItemTracker
     public ItemTracker itemTracker;
 
     void OnTriggerEnter(Collider other)
     {
-        // Vérifie si le joueur entre en collision avec un objet ayant le script ObjectFound
-        ObjectFound objectFound = other.GetComponent<ObjectFound>();
-        if (objectFound != null)
+        // VÃ©rifie si l'objet avec lequel le joueur entre en collision est un objet Ã  trouver
+        if (itemTracker != null && other.CompareTag("Collectible"))
         {
-            // Appelle la fonction FindItem du script ItemTracker
-            itemTracker.FindItem(objectFound.itemName);
+            // Appelle la fonction CollectItem de ItemTracker avec l'objet trouvÃ©
+            itemTracker.CollectItem(other.gameObject);
         }
     }
 }

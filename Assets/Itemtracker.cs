@@ -1,56 +1,99 @@
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
 
 public class ItemTracker : MonoBehaviour
 {
-    public List<string> itemsToFind = new List<string>();
-    public TextMeshProUGUI itemListText;
+    [Header("UI Elements")]
+    public Image[] itemImages; // Tableau des 4 images dans le panel
 
-    private GameController gameController;
+    [Header("Item Settings")]
+    public Sprite[] itemSprites; // Tableau de sprites pour les objets disponibles
+    public int numberOfItemsToFind = 4; // Nombre d'objets à trouver (doit être 4 ici)
 
-    private void Start()
+    [Header("Game Controller Reference")]
+    public GameController gameController; // Référence au GameController pour appeler ShowVictoryScreen
+
+    private List<GameObject> allCollectibles; // Liste de tous les objets collectables dans la scène
+    private List<GameObject> itemsToFind; // Liste des objets choisis pour être trouvés
+    private Dictionary<GameObject, Image> collectibleImageMap; // Dictionnaire pour mapper objets et images
+
+    void Start()
     {
-        // Trouver le GameController dans la scène
-        gameController = FindObjectOfType<GameController>();
+        // Récupérer tous les objets avec le tag "Collectible"
+        allCollectibles = new List<GameObject>(GameObject.FindGameObjectsWithTag("Collectible"));
+        itemsToFind = new List<GameObject>();
+        collectibleImageMap = new Dictionary<GameObject, Image>();
 
-        // Vérifie que le GameController a bien été trouvé
-        if (gameController == null)
+        // Sélectionner aléatoirement des objets à partir de la liste de tous les objets collectables
+        for (int i = 0; i < numberOfItemsToFind; i++)
         {
-            Debug.LogError("GameController non trouvé dans la scène. Assurez-vous qu'il est présent dans la hiérarchie.");
-        }
+            if (allCollectibles.Count == 0) break;
 
-        // Ajouter les objets à trouver
-        itemsToFind.Add("Cube");
-        itemsToFind.Add("Lion");
-        itemsToFind.Add("Greek status");
-        itemsToFind.Add("Einstein");
+            int randomIndex = Random.Range(0, allCollectibles.Count);
+            GameObject selectedObject = allCollectibles[randomIndex];
+            itemsToFind.Add(selectedObject);
+            allCollectibles.RemoveAt(randomIndex);
 
-        // Met à jour l'UI au démarrage
-        UpdateItemListUI();
-    }
-
-
-    public void FindItem(string itemName)
-    {
-        if (itemsToFind.Contains(itemName))
-        {
-            itemsToFind.Remove(itemName);
-            UpdateItemListUI();
-
-            if (itemsToFind.Count == 0)
+            // Assigner l'image correspondante au slot
+            Sprite collectibleSprite = GetSpriteForCollectible(selectedObject.name);
+            if (collectibleSprite != null && i < itemImages.Length)
             {
-                gameController.ShowVictoryScreen(); // Appelle la fonction de GameController
+                itemImages[i].sprite = collectibleSprite;
+                itemImages[i].enabled = true; // Activer l'image
+                collectibleImageMap[selectedObject] = itemImages[i]; // Associer l'objet à l'image dans le dictionnaire
             }
         }
     }
 
-    private void UpdateItemListUI()
+    Sprite GetSpriteForCollectible(string itemName)
     {
-        itemListText.text = "Find a : \n";
-        foreach (string item in itemsToFind)
+        // Trouver le sprite correspondant à l'objet en fonction de son nom
+        foreach (Sprite sprite in itemSprites)
         {
-            itemListText.text += "- " + item + "\n";
+            if (sprite.name == itemName) // Assurez-vous que le nom du sprite correspond au nom de l'objet
+            {
+                return sprite;
+            }
+        }
+        return null; // Retourne null si aucun sprite correspondant n'est trouvé
+    }
+
+    public void CollectItem(GameObject item)
+    {
+        if (itemsToFind.Contains(item))
+        {
+            // Retirer l'objet de la liste des objets à trouver
+            itemsToFind.Remove(item);
+
+            // Désactiver l'image associée dans le dictionnaire
+            if (collectibleImageMap.ContainsKey(item))
+            {
+                Image image = collectibleImageMap[item];
+                image.enabled = false;
+                collectibleImageMap.Remove(item); // Retirer l'objet du dictionnaire
+            }
+
+            Destroy(item); // Supprimer l'objet dans la scène
+
+            // Afficher l'écran de victoire si tous les objets ont été trouvés
+            if (itemsToFind.Count == 0)
+            {
+                DisplayVictoryScreen();
+            }
+        }
+    }
+
+    void DisplayVictoryScreen()
+    {
+        // Appeler la fonction ShowVictoryScreen() dans GameController pour afficher le panneau de victoire
+        if (gameController != null)
+        {
+            gameController.ShowVictoryScreen();
+        }
+        else
+        {
+            Debug.LogWarning("GameController n'est pas assigné dans ItemTracker.");
         }
     }
 }

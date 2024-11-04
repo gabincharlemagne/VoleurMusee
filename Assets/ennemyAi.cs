@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections.Generic;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -17,34 +18,52 @@ public class EnemyAI : MonoBehaviour
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponentInChildren<Animator>();
-        navMeshAgent.speed = progressionData.walkSpeed; // Utiliser la vitesse de marche du ScriptableObject
+        navMeshAgent.speed = progressionData.walkSpeed;
+
+        // Mélanger les waypoints
+        ShuffleWaypoints();
+
         MoveToNextWaypoint();
+        SetWalkingAnimation();
     }
 
     void Update()
     {
-        navMeshAgent.speed = isChasingPlayer ? progressionData.runSpeed : progressionData.walkSpeed;
-
         if (isChasingPlayer)
         {
-            navMeshAgent.SetDestination(player.position);
-            animator.SetBool("isRunning", true);
-            animator.SetBool("isWalking", false);
+            ChasePlayer();
 
             if (!CanSeePlayer())
             {
                 isChasingPlayer = false;
                 MoveToNextWaypoint();
+                SetWalkingAnimation();
             }
         }
         else
         {
-            if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance < waypointTolerance)
-                MoveToNextWaypoint();
+            Patrol();
 
             if (CanSeePlayer())
+            {
                 isChasingPlayer = true;
+                SetRunningAnimation();
+            }
         }
+    }
+
+    void Patrol()
+    {
+        navMeshAgent.speed = progressionData.walkSpeed;
+
+        if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance < waypointTolerance)
+            MoveToNextWaypoint();
+    }
+
+    void ChasePlayer()
+    {
+        navMeshAgent.speed = progressionData.runSpeed;
+        navMeshAgent.SetDestination(player.position);
     }
 
     void MoveToNextWaypoint()
@@ -70,5 +89,29 @@ public class EnemyAI : MonoBehaviour
         }
 
         return false;
+    }
+
+    void SetWalkingAnimation()
+    {
+        animator.SetBool("isWalking", true);
+        animator.SetBool("isRunning", false);
+    }
+
+    void SetRunningAnimation()
+    {
+        animator.SetBool("isWalking", false);
+        animator.SetBool("isRunning", true);
+    }
+
+    // Fonction pour mélanger les waypoints
+    void ShuffleWaypoints()
+    {
+        for (int i = 0; i < waypoints.Length; i++)
+        {
+            int randomIndex = Random.Range(i, waypoints.Length);
+            Transform temp = waypoints[i];
+            waypoints[i] = waypoints[randomIndex];
+            waypoints[randomIndex] = temp;
+        }
     }
 }

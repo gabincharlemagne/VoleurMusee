@@ -9,10 +9,22 @@ public class BestTimesData : ScriptableObject
     public void AddTime(float newTime)
     {
         bestTimes.Add(newTime);
-        bestTimes.Sort(); // Tri les temps dans l'ordre croissant (meilleurs temps en premier)
-        if (bestTimes.Count > 5) // Par exemple, on garde seulement les 5 meilleurs temps
+        bestTimes.Sort(); // Trie les temps dans l'ordre croissant
+        if (bestTimes.Count > 5) // Garde seulement les 5 meilleurs temps
         {
-            bestTimes.RemoveAt(bestTimes.Count - 1); // Supprime le temps le plus lent
+            bestTimes.RemoveAt(bestTimes.Count - 1);
+        }
+    }
+
+    public float GetBestTime()
+    {
+        if (bestTimes.Count > 0)
+        {
+            return bestTimes[0]; // Retourne le meilleur temps (le plus rapide)
+        }
+        else
+        {
+            return float.MaxValue; // Retourne une valeur élevée si aucun score n'est enregistré
         }
     }
 }
