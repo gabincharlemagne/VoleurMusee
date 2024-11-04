@@ -8,7 +8,6 @@ public class EnemyAI : MonoBehaviour
     public Transform[] waypoints;
     public float waypointTolerance;
     public Transform player;
-    public int itemsFound; // Nombre d'objets trouvés par le joueur
 
     private NavMeshAgent navMeshAgent;
     private Animator animator;
@@ -30,8 +29,6 @@ public class EnemyAI : MonoBehaviour
 
     void Update()
     {
-        UpdateEnemyAttributes(); // Met à jour les attributs en fonction des objets trouvés
-
         if (isChasingPlayer)
         {
             ChasePlayer();
@@ -53,17 +50,6 @@ public class EnemyAI : MonoBehaviour
                 SetRunningAnimation();
             }
         }
-    }
-
-    // Méthode pour adapter les caractéristiques de l'ennemi en fonction des objets trouvés
-    void UpdateEnemyAttributes()
-    {
-        // Augmenter la vitesse de l'ennemi et réduire le champ de vision en fonction du nombre d'objets trouvés
-        float speedMultiplier = 1f + (itemsFound * 0.1f); // Par exemple, augmente de 10% par objet trouvé
-        navMeshAgent.speed = isChasingPlayer ? progressionData.runSpeed * speedMultiplier : progressionData.walkSpeed * speedMultiplier;
-
-        float detectionRangeMultiplier = 1f - (itemsFound * 0.05f); // Par exemple, réduit de 5% par objet trouvé
-        progressionData.detectionRange *= Mathf.Clamp(detectionRangeMultiplier, 0.5f, 1f); // Limiter la réduction à 50%
     }
 
     void Patrol()

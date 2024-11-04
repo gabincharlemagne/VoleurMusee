@@ -9,7 +9,7 @@ public class ItemTracker : MonoBehaviour
 
     [Header("Item Settings")]
     public Sprite[] itemSprites; // Tableau de sprites pour les objets disponibles
-    public int numberOfItemsToFind = 4; // Nombre d'objets à trouver (doit être 4 ici)
+    public int numberOfItemsToFind = 4; // Nombre d'objets à trouver
 
     [Header("Game Controller Reference")]
     public GameController gameController; // Référence au GameController pour appeler ShowVictoryScreen
