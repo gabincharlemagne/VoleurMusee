@@ -89,6 +89,7 @@ public class FirstPersonController : MonoBehaviour
     private float sprintBarHeight;
     private bool isSprintCooldown = false;
     private float sprintCooldownReset;
+    private bool isRecoveringStamina = false;
 
     #endregion
 
@@ -280,33 +281,49 @@ public class FirstPersonController : MonoBehaviour
             {
                 isZoomed = false;
                 playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, sprintFOV, sprintFOVStepTime * Time.deltaTime);
+                
+                // Réduire la stamina pendant le sprint
+                sprintRemaining -= Time.deltaTime;
 
-                // Drain sprint remaining while sprinting
-                if(!unlimitedSprint)
+                if (sprintRemaining <= 0)
                 {
-                    sprintRemaining -= 1 * Time.deltaTime;
-                    if (sprintRemaining <= 0)
-                    {
-                        isSprinting = false;
-                        isSprintCooldown = true;
-                    }
+                    isSprinting = false;
+                    isSprintCooldown = true;
+                    isRecoveringStamina = true; // Commence la récupération
                 }
+
             }
             else
             {
-                // Regain sprint while not sprinting
-                sprintRemaining = Mathf.Clamp(sprintRemaining += 1 * Time.deltaTime, 0, sprintDuration);
+                // Recharger la stamina si elle est en train de récupérer
+                if (isRecoveringStamina)
+                {
+                    sprintRemaining += Time.deltaTime;
+                    sprintRemaining = Mathf.Clamp(sprintRemaining, 0, sprintDuration);
+
+                    // Si la stamina est complètement rechargée, arrêter la récupération et le cooldown
+                    if (sprintRemaining >= sprintDuration)
+                    {
+                        isRecoveringStamina = false;
+                        isSprintCooldown = false;
+                    }
+                }
             }
 
             // Handles sprint cooldown 
             // When sprint remaining == 0 stops sprint ability until hitting cooldown
             if(isSprintCooldown)
             {
-                sprintCooldown -= 1 * Time.deltaTime;
-                if (sprintCooldown <= 0)
+                
+                if (Input.GetKey(sprintKey) && sprintRemaining > 0 && !isSprintCooldown)
                 {
-                    isSprintCooldown = false;
+                    isSprinting = true;
                 }
+                else
+                {
+                    isSprinting = false;
+                }
+
             }
             else
             {
@@ -314,7 +331,7 @@ public class FirstPersonController : MonoBehaviour
             }
 
             // Handles sprintBar 
-            if(useSprintBar && !unlimitedSprint)
+            if (useSprintBar && !unlimitedSprint)
             {
                 float sprintRemainingPercent = sprintRemaining / sprintDuration;
                 sprintBar.transform.localScale = new Vector3(sprintRemainingPercent, 1f, 1f);
