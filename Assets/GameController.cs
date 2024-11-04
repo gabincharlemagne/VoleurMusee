@@ -11,10 +11,10 @@ public class GameController : MonoBehaviour
     public GameObject gameOverPanel;
 
     [Header("Camera Controller")]
-    public MonoBehaviour cameraController; // Référence au script de contrôle de la caméra
+    public MonoBehaviour cameraController;
 
     [Header("Game Elements")]
-    public GameObject[] uiElementsToHide; // Éléments d'UI à masquer pendant la pause
+    public GameObject[] uiElementsToHide;
 
     [Header("Timer Settings")]
     public float totalTime = 600f;
@@ -24,12 +24,9 @@ public class GameController : MonoBehaviour
     private bool gameEnded = false;
     private float remainingTime;
     
-    public BestTimesData bestTimesData; // Référence au ScriptableObject pour les meilleurs temps
-    public TMP_Text bestTimesText; // Référence à l'UI pour afficher les meilleurs temps
-    
-    public TMP_Text currentTimeText; // Texte pour afficher le temps de la partie actuelle
-
-
+    public BestTimesData bestTimesData;
+    public TMP_Text bestTimesText;
+    public TMP_Text currentTimeText;
 
     private void Start()
     {
@@ -41,10 +38,9 @@ public class GameController : MonoBehaviour
 
     private void Update()
     {
-        if (!gameEnded)
+        // Bloque la possibilité de pause si le panneau de victoire ou de game over est actif
+        if (!gameEnded && !victoryPanel.activeSelf && !gameOverPanel.activeSelf)
         {
-            UpdateTimer();
-
             if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
             {
                 if (isPaused)
@@ -56,6 +52,8 @@ public class GameController : MonoBehaviour
                     PauseGame();
                 }
             }
+
+            UpdateTimer();
         }
     }
 
@@ -89,7 +87,12 @@ public class GameController : MonoBehaviour
 
         if (cameraController != null)
         {
-            cameraController.enabled = false; // Désactive le mouvement de la caméra
+            cameraController.enabled = false;
+        }
+
+        foreach (GameObject uiElement in uiElementsToHide)
+        {
+            uiElement.SetActive(false);
         }
     }
 
@@ -103,23 +106,20 @@ public class GameController : MonoBehaviour
 
         if (cameraController != null)
         {
-            cameraController.enabled = false; // Désactive le mouvement de la caméra
+            cameraController.enabled = false;
         }
 
-        // Calculer le temps de la partie actuelle
         float currentTime = totalTime - remainingTime;
-        DisplayCurrentTime(currentTime); // Affiche le temps de la partie actuelle
-        bestTimesData.AddTime(currentTime); // Ajoute le temps actuel aux meilleurs temps
-        UpdateBestTimeUI(); // Met à jour l'affichage du meilleur temps
+        DisplayCurrentTime(currentTime);
+        bestTimesData.AddTime(currentTime);
+        UpdateBestTimeUI();
 
-        // Désactive tous les éléments d'UI à cacher
         foreach (GameObject uiElement in uiElementsToHide)
         {
             uiElement.SetActive(false);
         }
     }
 
-    
     private void DisplayCurrentTime(float currentTime)
     {
         int minutes = Mathf.FloorToInt(currentTime / 60);
@@ -127,13 +127,11 @@ public class GameController : MonoBehaviour
         currentTimeText.text = $"Your Time: {minutes:00}:{seconds:00}";
     }
 
-
-    
     private void UpdateBestTimeUI()
     {
         float bestTime = bestTimesData.GetBestTime();
 
-        if (bestTime != float.MaxValue) // Vérifie qu'il y a un temps enregistré
+        if (bestTime != float.MaxValue)
         {
             int minutes = Mathf.FloorToInt(bestTime / 60);
             int seconds = Mathf.FloorToInt(bestTime % 60);
@@ -141,14 +139,13 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            bestTimesText.text = "Best Time: --:--"; // Message par défaut si aucun temps n'est enregistré
+            bestTimesText.text = "Best Time: --:--";
         }
     }
 
-
     public void PauseGame()
     {
-        if (gameEnded) return; // Empêche la pause si le jeu est terminé
+        if (gameEnded || victoryPanel.activeSelf || gameOverPanel.activeSelf) return; // Empêche la pause si le jeu est terminé ou si un panneau est actif
 
         pauseMenuPanel.SetActive(true);
         Time.timeScale = 0f;
@@ -158,7 +155,7 @@ public class GameController : MonoBehaviour
 
         if (cameraController != null)
         {
-            cameraController.enabled = false; // Désactive le script de contrôle de la caméra
+            cameraController.enabled = false;
         }
 
         foreach (GameObject uiElement in uiElementsToHide)
@@ -169,7 +166,7 @@ public class GameController : MonoBehaviour
 
     public void ResumeGame()
     {
-        if (gameEnded) return; // Empêche la reprise du jeu si celui-ci est terminé
+        if (gameEnded || victoryPanel.activeSelf || gameOverPanel.activeSelf) return; // Empêche la reprise si le jeu est terminé ou si un panneau est actif
 
         pauseMenuPanel.SetActive(false);
         Time.timeScale = 1f;
@@ -179,7 +176,7 @@ public class GameController : MonoBehaviour
 
         if (cameraController != null)
         {
-            cameraController.enabled = true; // Réactive le script de contrôle de la caméra
+            cameraController.enabled = true;
         }
 
         foreach (GameObject uiElement in uiElementsToHide)
